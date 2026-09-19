@@ -80,11 +80,22 @@ test("validateConstraints: keeps full phrases (no truncation)", () => {
   const c = validateConstraints({ searchPhrases: [long], maxProductCost: 10, minMargin: 0.35, destinationCountry: "US", maxShippingDays: 10 });
   assert.equal(c.searchPhrases[0], long);
 });
-test("validateConstraints: rejects bad country code and category", () => {
-  const base = { searchPhrases: ["x"], maxProductCost: 10, minMargin: 0.35, destinationCountry: "XX", maxShippingDays: 10 };
+test("validateConstraints: rejects bad country code; accepts free-form category", () => {
+  const base = { searchPhrases: ["x"], maxProductCost: 10, minMargin: 0.35, destinationCountry: "US", maxShippingDays: 10 };
   assert.throws(() => validateConstraints({ ...base, destinationCountry: "ZZ" }));
   assert.throws(() => validateConstraints({ ...base, destinationCountry: "usa" }));
-  assert.throws(() => validateConstraints({ ...base, category: "Unicorns" }));
+
+  // Categories are free-form — the LLM may propose any short label.
+  // Regression: "desk organizers" previously 400'd the whole interpret call.
+  assert.equal(validateConstraints({ ...base, category: "Unicorns" }).category, "Unicorns");
+  assert.equal(validateConstraints({ ...base, category: "desk organizers" }).category, "desk organizers");
+  assert.equal(validateConstraints({ ...base, category: "  Home & Garden  " }).category, "Home & Garden");
+  assert.equal(validateConstraints({ ...base, category: "" }).category, null);
+  assert.equal(validateConstraints({ ...base, category: null }).category, null);
+
+  // Over-long categories are still rejected, and control chars are stripped.
+  assert.throws(() => validateConstraints({ ...base, category: "x".repeat(61) }));
+  assert.equal(validateConstraints({ ...base, category: "de\u0000sk" }).category, "desk");
 });
 
 // CJ parse — missing cost must not become zero; delivery limit enforced

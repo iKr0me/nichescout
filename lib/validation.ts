@@ -18,10 +18,10 @@ const ISO3166 = new Set([
   "ZA","AE","SA","IL","TR","SG","MY","TH","ID","PH","VN","HK","TW",
 ]);
 
-const KNOWN_CATEGORIES = new Set([
-  "Home & Garden","Electronics","Apparel","Beauty","Sports","Pet",
-  "Toys","Health","Automotive","Office","Tools",
-]);
+// Categories are free-form: the goal-interpretation LLM may propose any short
+// descriptive label. We only bound the length and reject control characters —
+// an allowlist would reject valid-but-unlisted labels and break the request.
+const MAX_CATEGORY_LEN = 60;
 
 const ISO_CURRENCY = new Set(["USD","EUR","GBP","CAD","AUD","JPY","CNY"]);
 
@@ -62,9 +62,12 @@ export function validateConstraints(raw: unknown): Constraints {
   const category = r.category == null
     ? null
     : (() => {
-        const c = String(r.category).trim();
-        if (KNOWN_CATEGORIES.has(c)) return c;
-        throw new Error(`constraints.category: unknown "${c}"`);
+        const c = String(r.category).replace(/[\u0000-\u001F\u007F]/g, "").trim();
+        if (!c) return null;
+        if (c.length > MAX_CATEGORY_LEN) {
+          throw new Error(`constraints.category: too long (max ${MAX_CATEGORY_LEN} chars)`);
+        }
+        return c;
       })();
 
   return { searchPhrases, maxProductCost, minMargin, destinationCountry, maxShippingDays, category };

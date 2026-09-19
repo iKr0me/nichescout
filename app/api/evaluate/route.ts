@@ -30,6 +30,7 @@ import { detectCurrency, validateConstraints } from "@/lib/validation";
 import { linearRegressionSlope, coefficientOfVariation } from "@/lib/stats";
 import { totalFreightCost } from "@/lib/cj-parse";
 import { isRelevantProduct, relevanceScore } from "@/lib/relevance";
+import { broadenPhrase } from "@/lib/phrase-broaden";
 import type {
   ApiUsage, CJCandidate, EvaluateRequest, EvaluateResponse, Evaluation,
   SearchSummary,
@@ -167,10 +168,69 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // 6. Trends for the first phrase only (budget: 1 call). Per-phrase
     //    batching is enabled in the client; single phrase is the simplest
     //    case.
-    const trends = await getTrends(constraints.searchPhrases[0], usage).catch(() => null);
+    // 6+7. Market data (Trends + Shopping).
+    //
+    // The interpretation LLM often produces a very specific first phrase
+    // (e.g. "lightweight desk organizers") for which Google Shopping returns
+    // ZERO results, while a broader sibling phrase ("desk organizer") returns
+    // a full page. Only ever querying searchPhrases[0] therefore produces a
+    // spurious "needs more evidence" for every candidate.
+    //
+    // Strategy: try each phrase in order, keeping the first that yields a
+    // usable sample (>= MIN_SHOPPING_RESULTS priced results). If none of the
+    // supplied phrases work, broaden them (drop modifiers, singularise) and
+    // try again — Google Shopping returns zero results for over-specific
+    // queries like "lightweight desk organizers" while "desk organizer" has a
+    // full page.
+    const supplied = constraints.searchPhrases.slice(0, 3);
+    const broadened: string[] = [];
+    for (const p of supplied) {
+      for (const v of broadenPhrase(p)) {
+        if (!supplied.includes(v) && !broadened.includes(v)) broadened.push(v);
+      }
+    }
+    const phraseCandidates = [...supplied, ...broadened].slice(0, 7);
 
-    // 7. Shopping for the first phrase only.
-    const shopping = await getShopping(constraints.searchPhrases[0], usage).catch(() => null);
+    let shopping: ShoppingAnalysis | null = null;
+    let shoppingPhrase: string | null = null;
+    let bestSoFar: ShoppingAnalysis | null = null;
+    let bestPhrase: string | null = null;
+
+    for (const phrase of phraseCandidates) {
+      const attempt = await getShopping(phrase, usage).catch(() => null);
+      if (!attempt) continue;
+      if (attempt.sampleSize >= 5 && attempt.medianPrice !== null) {
+        shopping = attempt;
+        shoppingPhrase = phrase;
+        break;
+      }
+      if (!bestSoFar || attempt.sampleSize > bestSoFar.sampleSize) {
+        bestSoFar = attempt;
+        bestPhrase = phrase;
+      }
+    }
+    // No phrase yielded a usable sample — keep the best attempt for diagnostics.
+    if (!shopping && bestSoFar) {
+      shopping = bestSoFar;
+      shoppingPhrase = bestPhrase;
+    }
+
+    let trends: Awaited<ReturnType<typeof getTrends>> | null = null;
+    let trendsPhrase: string | null = null;
+    let bestTrends: Awaited<ReturnType<typeof getTrends>> | null = null;
+    for (const phrase of phraseCandidates) {
+      const attempt = await getTrends(phrase, usage).catch(() => null);
+      if (!attempt) continue;
+      if (attempt.points.length >= 12) {
+        trends = attempt;
+        trendsPhrase = phrase;
+        break;
+      }
+      if (!bestTrends || attempt.points.length > bestTrends.points.length) {
+        bestTrends = attempt;
+      }
+    }
+    if (!trends && bestTrends) trends = bestTrends;
 
     // 8. Evaluate each finalist. Partition outcomes.
     const ranked: Evaluation[] = [];
@@ -262,9 +322,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     // Build a search summary explaining the funnel outcome.
     let noCandidatesReason: string | null = null;
+    const marketMissing =
+      shopping === null || shopping.sampleSize < 5 || shopping.medianPrice === null;
+
     if (finalists.length === 0) {
       if (totalCjResults === 0) {
         noCandidatesReason = "CJ returned no products for this search phrase. Try a different or broader niche description.";
+      } else if (marketMissing) {
+        // Market data is the blocker, not the supplier side. Say so plainly —
+        // this is the most common cause of "needs more evidence everywhere".
+        noCandidatesReason =
+          `No market prices found for ${JSON.stringify(shoppingPhrase ?? constraints.searchPhrases[0])}. ` +
+          `Google Shopping returned ${shopping?.sampleSize ?? 0} usable result(s). ` +
+          "Try a simpler, more generic product phrase (for example \"desk organizer\" instead of \"lightweight desk organizers\").";
       } else if (passedRelevance === 0) {
         noCandidatesReason = `${totalCjResults} product(s) found on CJ, but none matched your niche closely enough. Try a more specific search phrase.`;
       } else if (passedPrice === 0) {

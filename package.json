@@ -1,14 +1,25 @@
 {
-  "name": "commerce-track",
-  "version": "0.1.0",
+  "name": "nichescout",
+  "version": "1.0.0",
   "private": true,
+  "description": "Find products worth selling — evidence-backed niche product evaluation for ecommerce sellers.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test": "node --test --experimental-strip-types tests/*.test.ts",
+    "test:watch": "node --test --watch --experimental-strip-types tests/*.test.ts",
     "audit": "npm audit --omit=dev",
     "audit:dev": "npm audit",
-    "test": "node --test --experimental-strip-types tests/*.test.ts"
+    "screenshots": "./scripts/capture-screenshots.sh",
+    "feasibility": "node scripts/feasibility-test.mjs",
+    "env:prepare": "./scripts/prepare-env.sh",
+    "env:check": "./scripts/setup-credentials.sh --check",
+    "deploy:status": "./scripts/deploy.sh"
   },
   "dependencies": {
     "next": "16.3.5",
@@ -22,6 +33,7 @@
     "autoprefixer": "10.4.20",
     "postcss": "^8.5.28",
     "tailwindcss": "3.4.15",
-    "typescript": "5.7.2"
+    "typescript": "5.7.2",
+    "vercel": "^59.23.2"
   }
 }
