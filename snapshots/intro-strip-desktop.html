@@ -74,41 +74,38 @@ html, body {
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  background: var(--o-900);
 }
 
-/* Animated gradient bed — vivid orange, slow drift.
-   NOTE: background-size must stay near 100%; scaling it up zooms into the
-   gradient's dark end and the whole page reads brown instead of orange. */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -2;
+/* The vivid orange bed lives DIRECTLY on html/body.
+   Do not move this into a ::before pseudo-element: with a solid body
+   background and negative z-index children, the solid colour wins and the
+   whole page reads dark maroon (#431407) instead of orange. */
+html {
+  background: #ea580c;
+}
+body {
+  min-height: 100vh;
   background: linear-gradient(135deg,
     #c2410c 0%,
-    #ea580c 30%,
-    #f97316 60%,
-    #fb923c 100%);
-  background-size: 140% 140%;
-  background-position: 20% 40%;
-  animation: gradientDrift 26s ease-in-out infinite;
+    #ea580c 28%,
+    #f97316 58%,
+    #fb923c 88%,
+    #fdba74 100%);
+  background-attachment: fixed;
+  background-size: 100% 100%;
 }
-@keyframes gradientDrift {
-  0%   { background-position: 20% 40%; }
-  50%  { background-position: 80% 60%; }
-  100% { background-position: 20% 40%; }
-}
+
+/* Soft light bloom over the bed. Sits above the background, below content. */
 body::after {
   content: "";
   position: fixed;
   inset: 0;
-  z-index: -1;
-  background: var(--grad-glow);
+  z-index: 0;
   pointer-events: none;
+  background: var(--grad-glow);
 }
 
-main { min-height: 100vh; }
+main { min-height: 100vh; position: relative; z-index: 1; }
 
 h1, h2, h3, h4 {
   margin: 0;
@@ -744,7 +741,6 @@ button:disabled { cursor: not-allowed; opacity: 0.45; }
   }
   /* Freeze the drift at a MID position — 0% would pin to the gradient's
      darkest stop and the whole page reads brown. */
-  body::before { animation: none; background-position: 50% 45%; }
   .introPanel::after { animation: none; opacity: 0.7; }
   .introScrollCueArrow { animation: none; }
   .scatterCard { animation: none; }
