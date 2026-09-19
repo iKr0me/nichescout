@@ -1,0 +1,27 @@
+{
+  "name": "commerce-track",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "audit": "npm audit --omit=dev",
+    "audit:dev": "npm audit",
+    "test": "node --test --experimental-strip-types tests/*.test.ts"
+  },
+  "dependencies": {
+    "next": "16.3.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "autoprefixer": "10.4.20",
+    "postcss": "^8.5.28",
+    "tailwindcss": "3.4.15",
+    "typescript": "5.7.2"
+  }
+}

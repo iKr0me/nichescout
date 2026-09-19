@@ -1,0 +1,318 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>NicheScout</title><style>/* NicheScout — product discovery workspace. Warm off-white surface, white
+ * cards, dark navy typography, one teal accent. System font stack (no web fonts).
+ * Contrast: body #0f1b2d on #faf7f2 ≈ 13.4:1 (AAA). Teal #0d9488 on white ≈ 3.7:1. */
+
+:root {
+  --bg: #faf7f2;
+  --surface: #ffffff;
+  --surface-2: #f4efe7;
+  --border: #e6dfd2;
+  --text: #0f1b2d;
+  --text-soft: #4a5568;
+  --text-muted: #7a6f5e;
+  --accent: #0d9488;
+  --accent-strong: #0f766e;
+  --accent-soft: #ccfbf1;
+  --warn: #b45309;
+  --warn-soft: #fef3c7;
+  --danger: #b91c1c;
+  --danger-soft: #fee2e2;
+  --radius: 12px;
+  --radius-lg: 16px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+main { min-height: 100vh; }
+
+h1, h2, h3, h4 {
+  margin: 0;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+h1 { font-size: 28px; line-height: 1.2; }
+h2 { font-size: 22px; line-height: 1.25; }
+h3 { font-size: 18px; line-height: 1.3; }
+h4 { font-size: 15px; line-height: 1.3; }
+
+p { margin: 0; color: var(--text-soft); }
+
+a { color: var(--accent-strong); }
+a:hover { color: var(--accent); }
+
+button { font: inherit; cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: 0.5; }
+
+/* ─── Layout shell ────────────────────────────────────────────── */
+.shell { max-width: 1040px; margin: 0 auto; padding: 32px 24px 96px; }
+
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 24px;
+}
+.brand { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; }
+.brandMark {
+  width: 30px; height: 30px; border-radius: 8px; background: var(--accent);
+  display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 13px;
+}
+.brandName { color: var(--text); }
+.brandTag { color: var(--text-muted); font-weight: 500; font-size: 13px; }
+
+/* ─── Flow ──────────────────────────────────────────────────── */
+.flow { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 28px; }
+.flowStep {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px;
+}
+.flowNum {
+  width: 24px; height: 24px; border-radius: 50%; background: var(--surface-2);
+  color: var(--text-soft); font-weight: 700; font-size: 13px;
+  display: grid; place-items: center; flex-shrink: 0;
+}
+.flowActive { border-color: var(--accent); background: var(--accent-soft); }
+.flowActive .flowNum { background: var(--accent); color: #fff; }
+.flowDone .flowNum { background: var(--accent-strong); color: #fff; }
+.flowTitle { font-weight: 650; color: var(--text); font-size: 14px; }
+.flowDesc { color: var(--text-muted); font-size: 13px; margin-top: 2px; }
+
+/* ─── Cards ─────────────────────────────────────────────────── */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 24px;
+}
+.cardTight { padding: 16px 18px; }
+.card + .card { margin-top: 16px; }
+.cardTitle { margin: 0 0 4px; font-size: 16px; font-weight: 650; }
+.cardSub { color: var(--text-muted); font-size: 14px; margin-bottom: 14px; }
+
+/* ─── Buttons ───────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 40px; padding: 0 16px; border-radius: 10px; border: 1px solid transparent;
+  background: var(--surface-2); color: var(--text); font-weight: 600; font-size: 14px;
+}
+.btnPrimary { background: var(--accent); color: #fff; }
+.btnPrimary:hover:not(:disabled) { background: var(--accent-strong); }
+.btnGhost { background: transparent; color: var(--text-soft); }
+.btnGhost:hover:not(:disabled) { background: var(--surface-2); color: var(--text); }
+.btnBlock { width: 100%; }
+.btnSm { height: 32px; padding: 0 12px; font-size: 13px; }
+
+/* ─── Inputs ────────────────────────────────────────────────── */
+.fieldLabel {
+  display: block; font-size: 13px; font-weight: 600;
+  color: var(--text-soft); margin-bottom: 6px;
+}
+.input, .textarea {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+  border-radius: 10px; background: #fff; color: var(--text);
+  font: inherit; font-size: 14px;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.input:focus, .textarea:focus {
+  outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.textarea { min-height: 72px; resize: vertical; line-height: 1.5; }
+.help { margin-top: 6px; font-size: 12px; color: var(--text-muted); }
+
+/* ─── Examples ──────────────────────────────────────────────── */
+.examples { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.exampleChip {
+  background: var(--surface-2); border: 1px solid transparent; border-radius: 999px;
+  padding: 6px 12px; font-size: 12.5px; color: var(--text-soft);
+  cursor: pointer; transition: all 120ms ease; text-align: left;
+}
+.exampleChip:hover:not(:disabled) {
+  background: var(--accent-soft); color: var(--accent-strong);
+  border-color: var(--accent);
+}
+
+/* ─── Promises ──────────────────────────────────────────────── */
+.promises {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 18px;
+}
+.promise { background: var(--surface-2); border-radius: var(--radius); padding: 14px 16px; }
+.promiseTitle { display: block; font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+.promiseDesc { font-size: 12.5px; color: var(--text-muted); line-height: 1.45; }
+
+/* ─── Status pill ───────────────────────────────────────────── */
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px;
+  background: var(--surface-2); color: var(--text-soft);
+}
+.pillOk     { background: #d1fae5; color: #065f46; }
+.pillWarn   { background: var(--warn-soft); color: var(--warn); }
+.pillDanger { background: var(--danger-soft); color: var(--danger); }
+.pillMuted  { background: var(--surface-2); color: var(--text-muted); }
+
+/* ─── Results ───────────────────────────────────────────────── */
+.sectionHeader {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin: 28px 0 12px;
+}
+.sectionTitle { font-size: 18px; font-weight: 650; }
+.sectionMeta { font-size: 13px; color: var(--text-muted); }
+
+.productCard {
+  display: grid; grid-template-columns: 96px 1fr auto; gap: 16px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px;
+}
+.productCard + .productCard { margin-top: 12px; }
+.productImg {
+  width: 96px; height: 96px; object-fit: cover; border-radius: 10px;
+  background: var(--surface-2);
+}
+.productImgFallback {
+  width: 96px; height: 96px; border-radius: 10px; background: var(--surface-2);
+  display: grid; place-items: center; color: var(--text-muted);
+  font-weight: 600; font-size: 22px;
+}
+.productBody { min-width: 0; }
+.productTitle {
+  font-size: 15px; font-weight: 650; color: var(--text); margin: 0 0 8px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.productMeta {
+  display: flex; flex-wrap: wrap; gap: 14px;
+  font-size: 13px; color: var(--text-soft); margin-bottom: 6px;
+}
+.productMeta b { font-weight: 650; color: var(--text); }
+.productStatus {
+  margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px;
+  font-size: 12px; color: var(--text-muted);
+}
+.productSide {
+  display: flex; flex-direction: column; align-items: flex-end;
+  justify-content: space-between; gap: 8px; min-width: 96px;
+}
+.scoreRing {
+  width: 64px; height: 64px; border-radius: 50%; background: var(--surface-2);
+  color: var(--text); font-weight: 700; font-size: 18px;
+  display: grid; place-items: center;
+}
+.scoreRingMuted { color: var(--text-muted); }
+
+.list { margin: 0; padding: 0; list-style: none; }
+.list > li {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 14px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  font-size: 13px; color: var(--text-soft);
+}
+.list > li + li { margin-top: 8px; }
+.listId {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px; color: var(--text-muted);
+}
+
+/* ─── Listing preview ───────────────────────────────────────── */
+.listingCard {
+  background: linear-gradient(180deg, #f9fafb 0%, #ffffff 100%);
+  border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px;
+  margin-top: 16px;
+}
+.listingHero {
+  display: grid; grid-template-columns: 120px 1fr; gap: 20px; margin-bottom: 18px;
+}
+.listingImg {
+  width: 120px; height: 120px; object-fit: cover; border-radius: 12px;
+  background: var(--surface-2);
+}
+.listingImgFallback {
+  width: 120px; height: 120px; border-radius: 12px; background: var(--surface-2);
+  display: grid; place-items: center; color: var(--text-muted);
+}
+.listingTitle { font-size: 20px; font-weight: 650; color: var(--text); margin: 0 0 6px; }
+.listingDesc { color: var(--text-soft); margin: 0 0 12px; font-size: 14px; line-height: 1.55; }
+.listingBullets { margin: 0; padding-left: 18px; color: var(--text-soft); }
+.listingBullets li { margin-bottom: 4px; }
+.listingCostTable {
+  margin-top: 16px; display: grid; grid-template-columns: repeat(3,1fr); gap: 12px;
+  padding-top: 16px; border-top: 1px solid var(--border);
+}
+.listingCell { font-size: 13px; color: var(--text-muted); }
+.listingCell b {
+  display: block; font-size: 18px; font-weight: 700; color: var(--text); margin-top: 2px;
+}
+
+/* ─── States ────────────────────────────────────────────────── */
+.banner {
+  border-radius: var(--radius); padding: 14px 16px;
+  display: flex; align-items: flex-start; gap: 10px; font-size: 14px;
+}
+.bannerDanger { background: var(--danger-soft); color: var(--danger); border: 1px solid #fecaca; }
+.bannerWarn   { background: var(--warn-soft);  color: var(--warn);   border: 1px solid #fde68a; }
+.bannerMuted  { background: var(--surface-2); color: var(--text-soft); border: 1px solid var(--border); }
+
+.spinner {
+  display: inline-block; width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid currentColor; border-right-color: transparent;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-2) 0%, #f7f2e8 50%, var(--surface-2) 100%);
+  background-size: 200% 100%; animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: 6px;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ─── Summary ───────────────────────────────────────────────── */
+.summaryGrid {
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-top: 12px;
+}
+.summaryCell { background: var(--surface-2); border-radius: 10px; padding: 12px 14px; }
+.summaryLabel {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--text-muted); font-weight: 600;
+}
+.summaryValue { margin-top: 4px; font-size: 18px; font-weight: 700; color: var(--text); }
+
+/* ─── Footer / tech details ────────────────────────────────── */
+.techDetails { margin-top: 32px; }
+.techDetails summary {
+  cursor: pointer; font-size: 13px; color: var(--text-muted);
+  padding: 8px 0; list-style: none;
+}
+.techDetails summary::-webkit-details-marker { display: none; }
+.techDetails summary::before { content: "▸ "; color: var(--accent); }
+.techDetails[open] summary::before { content: "▾ "; }
+.techDetails pre {
+  background: #0f1b2d; color: #cfd8dc; border-radius: 8px;
+  padding: 12px 14px; font-size: 12px; overflow-x: auto; margin: 8px 0 0;
+}
+
+/* ─── Responsive ────────────────────────────────────────────── */
+@media (max-width: 760px) {
+  .shell { padding: 20px 16px 80px; }
+  .flow, .promises, .summaryGrid, .listingCostTable { grid-template-columns: 1fr; }
+  .productCard { grid-template-columns: 64px 1fr; }
+  .productSide {
+    grid-column: 1/-1; flex-direction: row;
+    align-items: center; justify-content: space-between;
+  }
+  .productImg, .productImgFallback { width: 64px; height: 64px; }
+  .listingHero { grid-template-columns: 80px 1fr; }
+  .listingImg, .listingImgFallback { width: 80px; height: 80px; }
+}
+</style></head><body><main><header class="header"><div class="brand"><div class="brandMark">N</div><div><div class="brandName">NicheScout</div><div class="brandTag">Find products worth selling</div></div></div></header><nav class="flow"><div class="flowStep flowDone"><div class="flowNum">✓</div><div><div class="flowTitle">Describe your niche</div><div class="flowDesc">Share what you want to sell</div></div></div><div class="flowStep flowDone"><div class="flowNum">✓</div><div><div class="flowTitle">Review opportunities</div><div class="flowDesc">Approve criteria and review matches</div></div></div><div class="flowStep flowActive"><div class="flowNum">3</div><div><div class="flowTitle">Create a listing</div><div class="flowDesc">Generate a launch-ready product draft</div></div></div></nav><div class="card"><h2 class="cardTitle">Opportunities</h2><div class="productCard"><div class="productImgFallback" aria-hidden="true">📦</div><div class="productBody"><div class="productTitle">Magnetic Phone Stand — Adjustable Aluminum Holder for Desk</div><div class="productMeta"><span>Cost <b>$9.20</b></span><span>Suggested <b>$19.99</b></span><span>Margin <b>54.0%</b></span><span>Delivery <b>5–11 days via CJPacket Sensitive Pro</b></span></div><div class="productStatus"><span class="pill pillOk">Stock verified</span><span class="pill pillMuted">6 evidence items</span></div></div><div class="productSide"><div class="scoreRing">83</div><button class="btn btnPrimary btnSm">Create listing</button></div><div style="grid-column:1/-1"><div class="listingCard"><div class="listingHero"><div class="listingImgFallback" aria-hidden="true">📦</div><div><h3 class="listingTitle">Adjustable Aluminum Phone Stand for Home and Travel</h3><p class="listingDesc">A stable, foldable phone stand made for everyday desk use. Compact and lightweight, fits any phone from 4.7" to 6.7".</p><ul class="listingBullets"><li>Fits most phones, including larger models</li><li>Adjustable angle for hands-free viewing</li><li>Foldable and lightweight for travel</li></ul></div></div><div class="listingCostTable"><div class="listingCell">Supplier cost<b>$2.10</b></div><div class="listingCell">Shipping<b>$7.10</b></div><div class="listingCell">Estimated margin<b>54.0%</b></div></div><p style="margin-top:12px;font-size:12px;color:var(--text-muted)">Suggested price $19.99 · Minimum profitable $13.20 (USD).</p></div></div></div></main></body></html>
