@@ -8,6 +8,8 @@ Built for dropshippers who are tired of guessing which product to commit to.
 
 ![NicheScout intro](docs/screenshots/intro-01-problem.png)
 
+VERCEL LINK: https://commerce-track.vercel.app/
+
 ---
 
 ## What it does
